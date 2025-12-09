@@ -44,6 +44,17 @@
     "description": ""
   },
   {
+    "id": "0.4",
+    "title": "Git Guide",
+    "file": "0.4_Git_Guide.md",
+    "status": "",
+    "layout": "A4",
+    "force_new_page_before": true,
+    "page_break_after": true,
+    "visible_in_viewer": true,
+    "description": ""
+  },
+  {
     "id": "1.0",
     "title": "Ausgangssituation Prüfungsauftrag und Vorgehensweise",
     "file": "1.0_Ausgangssituation_Prüfungsauftrag_und_Vorgehensweise.md",
