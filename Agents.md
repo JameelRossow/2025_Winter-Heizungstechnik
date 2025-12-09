@@ -12,7 +12,8 @@
 - Doku-Commits ändern nur Dateien unter `docs/` (z. B. `docs/1.1_Ausgangssituation.md`). Das ist der Inhalt der Prüfungsdokumentation.
 - Code-Commits betreffen alle anderen Dateitypen (`.css`, `.html`, `.js`, `.py` oder Markdown-Dateien außerhalb von `docs/`), also Viewer, Skripte, Assets und alles technische Drumherum.
 - Tags setzen wir nur bei fertigen Versionen. Der erste Tag ist `0.1.0`, weitere folgen mit neuen Meilensteinen.
-- Normaler Ablauf: `git status`, `git add …`, `git commit -m "Doku: …"` oder `git commit -m "Code: …"`, `git push origin main`, `git tag <version>`, `git push origin <version>`.
+- Bereite Commits vorzugsweise mit `commit.py` vor: Lege eine YAML-Datei im Ordner `commit/` an (Status-Zeile, Erstellungsdatum, Typ, Beschreibung, Commit-Message und betroffene Dateien) und nutze das Skript, um nur die als `pending` markierten Sets in der gewünschten Reihenfolge zu committen (Details in `commit/README.md`).
+- Normale Ablauf für einmalige Änderungen ohne `commit.py`: `git status`, `git add …`, `git commit -m "Doku: …"` oder `git commit -m "Code: …"`, danach `git push origin main`, ggf. `git tag <version>` und `git push origin <version>`.
 
 ## 3. Remote & Push
 - Es bleibt dabei: Der Agent führt keine Remote-Pushes ohne ausdrückliche Anweisung des Users durch. Weist der User ausdrücklich darauf hin, kann der Push gemacht werden; sonst bitte immer den User daran erinnern, selbst `git push` auszuführen.
