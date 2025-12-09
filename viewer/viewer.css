@@ -7,6 +7,7 @@
   --viewer-page-padding-right: 20mm;
   --viewer-page-padding-bottom: 20mm;
   --viewer-page-padding-left: 25mm;
+  --viewer-scale: 1;
 }
 
 * {
@@ -103,6 +104,7 @@ body {
   flex-direction: column;
   gap: 1rem;
   align-items: center;
+  transform-origin: top center;
 }
 
 .doc-page {
@@ -129,6 +131,13 @@ body {
   flex: 1;
   overflow: hidden;
 }
+
+.viewer--scaled .viewer-shell {
+  transform: scale(var(--viewer-scale));
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
 
 .doc-page.active-chapter {
   border-color: #2563eb;

@@ -16,6 +16,8 @@ const chapterEntryMap = new Map();
 let currentSelectedChapterId = null;
 let pendingHoverChapterId = null;
 let availableChapters = [];
+let mobileScaleInitialized = false;
+let mobileScaleObserver = null;
 
 const markdown = window.markdownit?.({
   html: true,
@@ -166,6 +168,7 @@ async function initViewer() {
     await renderChapters(chapters);
     scrollToChapter(currentSelectedChapterId, { behavior: 'auto' });
     statusEl.textContent = 'Bereit';
+    initResponsiveScaling();
   } catch (error) {
     console.error(error);
     statusEl.textContent = 'Fehler beim Laden der Dokumentation.';
@@ -333,6 +336,44 @@ function calculateAvailableContentHeight(section) {
   const paddingTop = parseFloat(styles.paddingTop) || 0;
   const paddingBottom = parseFloat(styles.paddingBottom) || 0;
   return section.clientHeight - paddingTop - paddingBottom;
+}
+
+function initResponsiveScaling() {
+  if (mobileScaleInitialized || !viewer) {
+    return;
+  }
+  mobileScaleInitialized = true;
+  const root = document.documentElement;
+  if (!root) {
+    return;
+  }
+
+  const applyScale = () => {
+    const firstPage = viewer.querySelector('.doc-page');
+    if (!firstPage) return;
+    const pageRect = firstPage.getBoundingClientRect();
+    const pageWidth = Math.max(firstPage.scrollWidth, pageRect.width, firstPage.offsetWidth, 1);
+    const availableWidth = Math.max(window.innerWidth - 32, 240);
+    if (pageWidth <= availableWidth + 1) {
+      root.classList.remove('viewer--scaled');
+      root.style.removeProperty('--viewer-scale');
+      return;
+    }
+    const rawScale = availableWidth / pageWidth;
+    const scale = Math.max(Math.min(rawScale, 1), 0.3);
+    root.style.setProperty('--viewer-scale', scale.toFixed(3));
+    root.classList.add('viewer--scaled');
+  };
+
+  const debouncedApply = () => window.requestAnimationFrame(applyScale);
+
+  window.addEventListener('resize', debouncedApply);
+  window.addEventListener('orientationchange', debouncedApply);
+  if (typeof ResizeObserver === 'function') {
+    mobileScaleObserver = new ResizeObserver(debouncedApply);
+    mobileScaleObserver.observe(viewer);
+  }
+  applyScale();
 }
 
 function renderChapterMenu(chapters) {

@@ -9,6 +9,11 @@ const STATUS_META = {
   not_started: { label: 'not started', pillClass: 'status-pill--not-started' },
 };
 
+const HOME_SCALE_CLASS = 'home--scaled';
+const HOME_SCALE_VAR = '--home-scale';
+let homeScaleObserver = null;
+let homeScaleInitialized = false;
+
 async function initHome() {
   try {
     const chapters = await loadManifest();
@@ -18,6 +23,7 @@ async function initHome() {
     }
     renderChapters(chapters);
     statusEl.textContent = 'Kapitelübersicht bereit.';
+    initHomeScaling();
   } catch (error) {
     console.error(error);
     statusEl.textContent = 'Fehler beim Laden der Kapitelliste.';
@@ -106,6 +112,38 @@ function renderChapters(chapters) {
 function renderHomeError(error) {
   errorEl.hidden = false;
   errorEl.textContent = error?.message ?? 'Unbekannter Fehler beim Laden der Kapitel.';
+}
+
+function initHomeScaling() {
+  if (homeScaleInitialized) return;
+  homeScaleInitialized = true;
+  const table = document.querySelector('.chapter-table');
+  if (!table) return;
+
+  const root = document.documentElement;
+
+  const applyScale = () => {
+    const availableWidth = Math.max(window.innerWidth - 32, 240);
+    const neededWidth = Math.max(table.scrollWidth, table.offsetWidth, 1);
+    if (neededWidth <= availableWidth + 1) {
+      root.classList.remove(HOME_SCALE_CLASS);
+      root.style.removeProperty(HOME_SCALE_VAR);
+      return;
+    }
+    const rawScale = availableWidth / neededWidth;
+    const scale = Math.max(Math.min(rawScale, 1), 0.3);
+    root.style.setProperty(HOME_SCALE_VAR, scale.toFixed(3));
+    root.classList.add(HOME_SCALE_CLASS);
+  };
+
+  const debouncedApply = () => window.requestAnimationFrame(applyScale);
+  window.addEventListener('resize', debouncedApply);
+  window.addEventListener('orientationchange', debouncedApply);
+  if (typeof ResizeObserver === 'function') {
+    homeScaleObserver = new ResizeObserver(debouncedApply);
+    homeScaleObserver.observe(table);
+  }
+  applyScale();
 }
 
 window.addEventListener('DOMContentLoaded', initHome);

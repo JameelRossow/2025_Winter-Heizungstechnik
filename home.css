@@ -1,6 +1,7 @@
 :root {
   color: #1b1b1b;
   background: #f3f4f6;
+  --home-scale: 1;
 }
 
 * {
@@ -19,6 +20,7 @@ body {
   max-width: 960px;
   margin: 0 auto;
   padding: 2rem 1rem 3rem;
+  transform-origin: top center;
 }
 
 .home-header {
@@ -141,4 +143,10 @@ body {
     display: block;
     border-bottom: 1px solid #e5e7eb;
   }
+}
+
+.home--scaled .home-shell {
+  transform: scale(var(--home-scale));
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
 }

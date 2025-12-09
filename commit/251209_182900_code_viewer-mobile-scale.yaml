@@ -1,0 +1,12 @@
+status: "done"
+created: "251209_182900"
+type: "code"
+description: "Viewer-Mobil-Skalierung ergänzt"
+commit_message: "Code: Viewer mobile scaling"
+files:
+  - viewer/docs_viewer.js
+  - viewer/viewer.css
+  - home.js
+  - home.css
+  - commit/251209_182900_code_viewer-mobile-scale.yaml
+executed_at: "2025-12-09T17:34:36.907476+00:00"
