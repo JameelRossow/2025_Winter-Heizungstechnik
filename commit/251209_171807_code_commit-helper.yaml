@@ -1,0 +1,9 @@
+status: pending
+created: "251209_171807"
+type: "code"
+description: "Commitiere aktualisierte Hilfsskripte sowie den Descriptor-Log"
+commit_message: "Code: Commit helper descriptor"
+files:
+  - commit.py
+  - commit/251209_171731_code_agent-guidelines.yaml
+  - commit/251209_171807_code_commit-helper.yaml
