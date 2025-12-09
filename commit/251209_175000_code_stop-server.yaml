@@ -1,0 +1,10 @@
+status: "done"
+created: "251209_175000"
+type: "code"
+description: "run.py schreibt die PID und stop.py killt sie"
+commit_message: "Code: run_id tracking und Stop-Skript"
+files:
+  - run.py
+  - stop.py
+  - .gitignore
+executed_at: "2025-12-09T16:51:07.166909+00:00"
