@@ -2,7 +2,10 @@ const viewer = document.getElementById('doc-viewer');
 const statusEl = document.getElementById('status');
 const titleEl = document.getElementById('project-title');
 
-const manifestUrl = '../docs/doc_manifest.json';
+const viewerScriptUrl = document.currentScript?.src ?? location.href;
+const viewerScriptDir = new URL('.', viewerScriptUrl);
+const docsBaseUrl = new URL('../docs/', viewerScriptDir);
+const manifestUrl = new URL('doc_manifest.json', docsBaseUrl).href;
 const chapterPanelButton = document.getElementById('chapter-menu-button');
 const chapterPanel = document.getElementById('chapter-panel');
 const chapterPanelContent = document.getElementById('chapter-panel-content');
@@ -167,7 +170,7 @@ async function appendChapter(chapter) {
 }
 
 async function fetchChapterContent(file) {
-  const url = new URL(`../docs/${file}`, location.href);
+  const url = new URL(file, docsBaseUrl);
   url.searchParams.set('t', Date.now().toString());
   const response = await fetch(url);
   if (!response.ok) {
