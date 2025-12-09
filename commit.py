@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
@@ -165,6 +165,15 @@ def commit_entries(entries: List[Dict[str, Any]]) -> None:
         if not message:
             print(f"Übersprungen: '{entry.get('description', '<unbenannt>')}' (fehlende Commit-Nachricht).")
             continue
+
+        executed_at = datetime.now(timezone.utc).isoformat()
+        entry["status"] = "done"
+        entry["executed_at"] = executed_at
+        if isinstance(path, Path):
+            data = dict(entry)
+            data.pop("_path", None)
+            write_entry(path, data)
+
         print(f"Commit: {message}")
         try:
             subprocess.run(["git", "add", *files], check=True, cwd=str(root))
@@ -172,12 +181,6 @@ def commit_entries(entries: List[Dict[str, Any]]) -> None:
         except subprocess.CalledProcessError as exc:
             print(f"Fehler beim Commit von {path}: {exc}")
             continue
-        entry["status"] = "done"
-        entry["executed_at"] = datetime.utcnow().isoformat()
-        if isinstance(path, Path):
-            data = dict(entry)
-            data.pop("_path", None)
-            write_entry(path, data)
 
 
 def main() -> None:

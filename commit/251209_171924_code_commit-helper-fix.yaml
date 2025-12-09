@@ -1,0 +1,11 @@
+status: "done"
+created: "251209_171924"
+type: "code"
+description: "Finalisiere die Commit-Helper-Beschreibungen und -Status"
+commit_message: "Code: Commit helper fix"
+files:
+  - commit.py
+  - commit/251209_171731_code_agent-guidelines.yaml
+  - commit/251209_171807_code_commit-helper.yaml
+  - commit/251209_171924_code_commit-helper-fix.yaml
+executed_at: "2025-12-09T16:19:34.571182+00:00"

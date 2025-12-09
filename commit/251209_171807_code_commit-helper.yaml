@@ -1,4 +1,4 @@
-status: pending
+status: "done"
 created: "251209_171807"
 type: "code"
 description: "Commitiere aktualisierte Hilfsskripte sowie den Descriptor-Log"
@@ -7,3 +7,4 @@ files:
   - commit.py
   - commit/251209_171731_code_agent-guidelines.yaml
   - commit/251209_171807_code_commit-helper.yaml
+executed_at: "2025-12-09T16:18:38.642368"
