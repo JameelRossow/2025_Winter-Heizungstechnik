@@ -90,7 +90,7 @@ def display_entries(entries: List[Dict[str, Any]]) -> None:
 
 
 def select_entries(count: int) -> List[int]:
-    prompt = "Nummer(n) zum Commit ausführen (z. B. 1 oder 1,2,3; ENTER zum Abbruch): "
+    prompt = "Nummer(n) zum Commit ausführen (z. B. 1 oder 1,2,3; ENTER zum Abbruch): "
     selection = input(prompt).strip()
     if not selection:
         return []

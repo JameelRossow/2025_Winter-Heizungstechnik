@@ -1,0 +1,8 @@
+status: "done"
+created: "251209_171731"
+type: "code"
+description: "Aktualisiere Agent Guidelines mit neuer Commit-Workflow-Referenz"
+commit_message: "Code: Agent guidelines & commit workflow"
+files:
+  - Agents.md
+executed_at: "2025-12-09T16:17:47.159636"
