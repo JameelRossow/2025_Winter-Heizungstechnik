@@ -1,6 +1,12 @@
 :root {
   color: #1b1b1b;
   background-color: #e5e7eb;
+  --viewer-page-width: 210mm;
+  --viewer-page-height: 297mm;
+  --viewer-page-padding-top: 20mm;
+  --viewer-page-padding-right: 20mm;
+  --viewer-page-padding-bottom: 20mm;
+  --viewer-page-padding-left: 25mm;
 }
 
 * {
@@ -100,15 +106,28 @@ body {
 }
 
 .doc-page {
-  width: 210mm;
-  min-height: 297mm;
+  width: var(--viewer-page-width);
+  min-height: var(--viewer-page-height);
   margin: 0 auto;
   background: white;
-  padding: 20mm 20mm 20mm 25mm;
+  padding: var(--viewer-page-padding-top) var(--viewer-page-padding-right)
+    var(--viewer-page-padding-bottom) var(--viewer-page-padding-left);
   border: 1px solid #cbd5f5;
   box-shadow: 0 0 4mm rgba(0, 0, 0, 0.15);
   outline: 1px solid rgba(15, 23, 42, 0.06);
   position: relative;
+}
+
+.doc-page--a4 {
+  height: var(--viewer-page-height);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.doc-page--a4 .doc-content {
+  flex: 1;
+  overflow: hidden;
 }
 
 .doc-page.active-chapter {

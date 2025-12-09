@@ -1,0 +1,11 @@
+status: "done"
+created: "251209_181500"
+type: "code"
+description: "Viewer-Hashnavigation und A4-Paginierung"
+commit_message: "Code: Viewer A4 Hashnavigation"
+files:
+  - viewer/docs_viewer.js
+  - viewer/viewer.css
+  - commit/README.md
+  - commit/251209_181500_code_viewer-a4-pagination.yaml
+executed_at: "2025-12-09T17:20:21.841211+00:00"

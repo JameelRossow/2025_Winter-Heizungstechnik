@@ -14,3 +14,5 @@ files:
 ```
 
 Verwende `status: done`, sobald der Commit von `commit.py` ausgeführt wurde. Weitere Felder (z. B. `note:`) bleiben erhalten.
+
+Wichtig: Trage die YAML-Datei, die du hier f�r einen Commit anlegst, ebenfalls im Feld "files" ein, damit commit.py sie automatisch mitsichert.
