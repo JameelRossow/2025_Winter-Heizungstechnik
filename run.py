@@ -1,6 +1,31 @@
 import json
+import os
 import re
+import sys
 from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parent
+VENV_DIR = ROOT / ".venv"
+
+def ensure_virtualenv():
+    if not VENV_DIR.exists():
+        return
+    candidate_paths = [
+        VENV_DIR / "Scripts" / "python.exe",
+        VENV_DIR / "bin" / "python",
+    ]
+    current = Path(sys.executable).resolve()
+    for candidate in candidate_paths:
+        if not candidate.exists():
+            continue
+        target = candidate.resolve()
+        if current == target:
+            return
+        os.execv(str(target), [str(target)] + sys.argv)
+
+
+ensure_virtualenv()
 
 try:
     from livereload import Server
