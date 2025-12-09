@@ -1,7 +1,9 @@
+import atexit
 import json
 import os
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
 
 
@@ -35,6 +37,7 @@ except ImportError:  # pragma: no cover
 ROOT = Path(__file__).resolve().parent
 DOCS_DIR = ROOT / "docs"
 MANIFEST_FILE = DOCS_DIR / "doc_manifest.json"
+RUN_ID_FILE = ROOT / "run_id.json"
 
 FRONT_FIELDS = [
     "status",
@@ -45,6 +48,25 @@ FRONT_FIELDS = [
     "page_break_after",
     "visible_in_viewer",
 ]
+
+
+def _remove_run_id_file():
+    try:
+        RUN_ID_FILE.unlink()
+    except FileNotFoundError:
+        pass
+
+
+atexit.register(_remove_run_id_file)
+
+
+def record_run_id():
+    payload = {
+        "pid": os.getpid(),
+        "started": datetime.utcnow().isoformat(),
+    }
+    RUN_ID_FILE.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    print(f"run.py-PID {payload['pid']} in {RUN_ID_FILE.name} gespeichert.")
 
 
 def parse_filename_meta(filename: Path) -> dict:
@@ -163,6 +185,7 @@ def serve():
     server.watch("index.html")
     server.watch("home.js")
     server.watch("home.css")
+    record_run_id()
     server.serve(
         root=str(ROOT),
         host="127.0.0.1",
