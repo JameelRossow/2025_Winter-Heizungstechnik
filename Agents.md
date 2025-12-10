@@ -16,7 +16,7 @@
 - Wenn du den `created`-Zeitstempel eines Commit-Descriptors anpasst, muss der Dateiname im Ordner `commit/` denselben Zeitstempel erhalten (z. B. `commit/251210_191000_code_xyz.yaml`), damit die Reihenfolge stabil bleibt. Aktualisiere in diesem Zuge auch den Eintrag unter `files:` innerhalb der YAML, damit der neue Dateiname ebenfalls dort gelistet ist.
 
 ## 3. Remote & Push
-- Es bleibt dabei: Der Agent führt keine Remote-Pushes ohne ausdrückliche Anweisung des Users durch. Weist der User ausdrücklich darauf hin, kann der Push gemacht werden; sonst bitte immer den User daran erinnern, selbst `git push` auszuführen.
+- Es bleibt dabei: Der Agent führt keine Remote-Pushes ohne ausdrückliche Anweisung des Users durch. Weist der User ausdrücklich darauf hin, kann der Push gemacht werden; sonst bitte immer den User daran erinnern, selbst `git push origin main` auszuführen.
 - Authentifizierung bei Pushes läuft über GitHub (Personal Access Token oder SSH). Einen dauerhaften `git login` gibt es nicht.
 
 ## 4. Scripts und Sicherheit
