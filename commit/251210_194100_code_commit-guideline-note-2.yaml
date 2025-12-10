@@ -1,0 +1,10 @@
+status: "done"
+created: "251210_194100"
+type: "code"
+description: "Weitere Hinweise zu renamed YAML-Dateien (Dateiliste + README/Agents) ergänzt"
+commit_message: "Code: Commit-Descriptor-Hinweis erweitert"
+files:
+  - Agents.md
+  - commit/README.md
+  - commit/251210_194100_code_commit-guideline-note-2.yaml
+executed_at: "2025-12-10T18:40:00.069854+01:00"

@@ -13,7 +13,7 @@
 - Code-Commits betreffen alle anderen Dateitypen (`.css`, `.html`, `.js`, `.py` oder Markdown-Dateien außerhalb von `docs/`), also Viewer, Skripte, Assets und alles technische Drumherum.
 - Tags setzen wir nur bei fertigen Versionen. Der erste Tag ist `0.1.0`, weitere folgen mit neuen Meilensteinen.
 - Alle Commits erfolgen über `commit.py`: Lege eine YAML-Datei im Ordner `commit/` an (Status-Zeile, Erstellungsdatum, Typ, Beschreibung, Commit-Message und betroffene Dateien). `commit.py` nimmt nur `pending`-Einträge in definierter Reihenfolge und führt `git add`/`git commit` mit der angegebenen Nachricht aus (Details in `commit/README.md`). Den Agenten soll das Script niemals eigenständig ausführen; es darf nur auf ausdrückliche Anweisung des Users gestartet werden.
-- Wenn du den `created`-Zeitstempel eines Commit-Descriptors anpasst, muss der Dateiname im Ordner `commit/` denselben Zeitstempel erhalten (z. B. `commit/251210_191000_code_xyz.yaml`), damit die Reihenfolge stabil bleibt.
+- Wenn du den `created`-Zeitstempel eines Commit-Descriptors anpasst, muss der Dateiname im Ordner `commit/` denselben Zeitstempel erhalten (z. B. `commit/251210_191000_code_xyz.yaml`), damit die Reihenfolge stabil bleibt. Aktualisiere in diesem Zuge auch den Eintrag unter `files:` innerhalb der YAML, damit der neue Dateiname ebenfalls dort gelistet ist.
 
 ## 3. Remote & Push
 - Es bleibt dabei: Der Agent führt keine Remote-Pushes ohne ausdrückliche Anweisung des Users durch. Weist der User ausdrücklich darauf hin, kann der Push gemacht werden; sonst bitte immer den User daran erinnern, selbst `git push` auszuführen.
