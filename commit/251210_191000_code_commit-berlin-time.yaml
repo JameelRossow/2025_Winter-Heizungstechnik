@@ -1,0 +1,9 @@
+status: "done"
+created: "251210_191000"
+type: "code"
+description: "commit.py nutzt jetzt Europe/Berlin für Zeitstempel (mit Fallback, falls tzdata fehlt)"
+commit_message: "Code: Commit-Script Berliner Zeit (Fallback)"
+files:
+  - commit.py
+  - commit/251210_191000_code_commit-berlin-time.yaml
+executed_at: "2025-12-10T18:39:59.729987+01:00"

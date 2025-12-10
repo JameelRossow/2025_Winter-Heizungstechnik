@@ -6,6 +6,11 @@ from __future__ import annotations
 import subprocess
 import sys
 from datetime import datetime, timezone
+try:
+    from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+except ImportError:  # pragma: no cover - zoneinfo not available
+    ZoneInfo = None
+    ZoneInfoNotFoundError = Exception
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
@@ -151,6 +156,15 @@ def write_entry(path: Path, data: Dict[str, Any]) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def now_in_berlin() -> datetime:
+    if ZoneInfo is not None:
+        try:
+            return datetime.now(ZoneInfo("Europe/Berlin"))
+        except ZoneInfoNotFoundError:
+            pass
+    return datetime.now().astimezone()
+
+
 def commit_entries(entries: List[Dict[str, Any]]) -> None:
     if not entries:
         return
@@ -166,7 +180,7 @@ def commit_entries(entries: List[Dict[str, Any]]) -> None:
             print(f"Übersprungen: '{entry.get('description', '<unbenannt>')}' (fehlende Commit-Nachricht).")
             continue
 
-        executed_at = datetime.now(timezone.utc).isoformat()
+        executed_at = now_in_berlin().isoformat()
         entry["status"] = "done"
         entry["executed_at"] = executed_at
         if isinstance(path, Path):
