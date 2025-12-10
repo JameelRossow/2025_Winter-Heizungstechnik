@@ -24,6 +24,8 @@ let pdfModalIframe = null;
 let pdfModalTitleEl = null;
 let pdfModalCloseButton = null;
 let pdfModalTrigger = null;
+let scrollSpyScheduled = false;
+let scrollSpyInitialized = false;
 const VIEWER_MIN_SCALE = 0.55;
 const VIEWER_SCALE_EPSILON = 0.001;
 const VIEWER_VIEWPORT_PADDING = 32;
@@ -193,6 +195,7 @@ async function initViewer() {
     scrollToChapter(currentSelectedChapterId, { behavior: 'auto' });
     statusEl.textContent = 'Bereit';
     initResponsiveScaling();
+    initScrollSpy();
   } catch (error) {
     console.error(error);
     statusEl.textContent = 'Fehler beim Laden der Dokumentation.';
@@ -511,7 +514,10 @@ function scrollToChapter(chapterId, options = {}) {
     currentSelectedChapterId = chapterId;
     updateHashWithChapterId(chapterId);
   }
-  markActiveChapter(chapterId);
+  const suppressHighlight = options.suppressHighlight ?? options.temporary ?? false;
+  if (!suppressHighlight) {
+    markActiveChapter(chapterId);
+  }
 }
 
 function markActiveChapter(chapterId) {
@@ -679,6 +685,87 @@ function applyPdfViewerParams(url, params = {}) {
   } catch (error) {
     return url;
   }
+}
+
+function initScrollSpy() {
+  if (scrollSpyInitialized || !viewer) {
+    return;
+  }
+  scrollSpyInitialized = true;
+  const handler = () => scheduleScrollSpyUpdate();
+  window.addEventListener('scroll', handler, { passive: true });
+  viewer.addEventListener('scroll', handler, { passive: true });
+  scheduleScrollSpyUpdate();
+}
+
+function scheduleScrollSpyUpdate() {
+  if (scrollSpyScheduled) {
+    return;
+  }
+  scrollSpyScheduled = true;
+  window.requestAnimationFrame(() => {
+    scrollSpyScheduled = false;
+    updateActiveChapterFromViewport();
+  });
+}
+
+function updateActiveChapterFromViewport() {
+  if (pendingHoverChapterId) {
+    return;
+  }
+  const chapterId = findChapterClosestToViewport();
+  if (!chapterId || chapterId === currentSelectedChapterId) {
+    return;
+  }
+  if (!availableChapters.some((entry) => entry?.id === chapterId)) {
+    return;
+  }
+  currentSelectedChapterId = chapterId;
+  markActiveChapter(chapterId);
+  updateHashWithChapterId(chapterId);
+}
+
+function findChapterClosestToViewport() {
+  if (!viewer) {
+    return null;
+  }
+  const pages = Array.from(viewer.querySelectorAll('.doc-page'));
+  if (!pages.length) {
+    return null;
+  }
+  const anchorOffset = getViewerAnchorOffset();
+  let candidate = null;
+  let bestDelta = Number.POSITIVE_INFINITY;
+
+  for (const page of pages) {
+    const rect = page.getBoundingClientRect();
+    if (rect.bottom <= anchorOffset + 4) {
+      continue;
+    }
+    if (rect.top <= anchorOffset && rect.bottom >= anchorOffset) {
+      candidate = page;
+      break;
+    }
+    const delta = Math.abs(rect.top - anchorOffset);
+    if (delta < bestDelta) {
+      bestDelta = delta;
+      candidate = page;
+    }
+  }
+
+  if (!candidate) {
+    candidate = pages[pages.length - 1];
+  }
+  return candidate?.dataset.chapterId ?? null;
+}
+
+function getViewerAnchorOffset() {
+  const header = document.querySelector('.viewer-header');
+  if (!header) {
+    return 0;
+  }
+  const marginBottom = parseFloat(window.getComputedStyle(header).marginBottom) || 0;
+  return (header.offsetHeight || 0) + marginBottom + 16;
 }
 
 window.addEventListener('DOMContentLoaded', initViewer);
