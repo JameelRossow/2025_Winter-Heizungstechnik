@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
@@ -6,28 +6,36 @@
     <title>Prüfungsprojekt – Heizungstechnik LP3 (Übersicht)</title>
     <link rel="stylesheet" href="home.css" />
   </head>
-  <body>
-    <main class="home-shell">
-      <header class="home-header">
-        <h1>Prüfungsprojekt – Heizungstechnik LP3 (Doku-Übersicht)</h1>
-        <p class="home-status" id="home-status">Lade Kapitelliste …</p>
-      </header>
+  <body class="home">
+    <div class="home-outer">
+      <div class="home-scale-root">
+        <main class="home-shell">
+          <header class="home-header">
+            <h1>Prüfungsprojekt – Heizungstechnik LP3 (Doku-Übersicht)</h1>
+            <p class="home-status" id="home-status">Lade Kapitelliste …</p>
+          </header>
 
-      <div id="home-error" class="home-error" hidden></div>
+          <div id="home-error" class="home-error" hidden></div>
 
-      <table class="chapter-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Titel</th>
-            <th>Beschreibung</th>
-            <th>Status</th>
-            <th>Aktion</th>
-          </tr>
-        </thead>
-        <tbody id="chapter-list"></tbody>
-      </table>
-    </main>
+          <table class="chapter-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Titel</th>
+                <th>Beschreibung</th>
+                <th>Status</th>
+                <th>Aktion</th>
+              </tr>
+            </thead>
+            <tbody id="chapter-list"></tbody>
+          </table>
+        </main>
+      </div>
+    </div>
+
+    <p class="home-mobile-hint">
+      Beste Darstellung am PC oder Tablet. Du kannst hier trotzdem scrollen und zoomen.
+    </p>
 
     <script src="home.js"></script>
   </body>

@@ -1,0 +1,15 @@
+status: "done"
+created: "251210_205500"
+type: "code"
+description: "Einheitliche Desktop-Skalierung, Header/Home-Button-Fixes und UTF-8-Korrekturen"
+commit_message: "Code: Einheitliches Viewer/Home Scaling"
+files:
+  - home.css
+  - home.js
+  - index.html
+  - viewer/docs_viewer.js
+  - viewer/index.html
+  - viewer/viewer.css
+  - commit/251210_205500_code_uniform-scaling.yaml
+executed_at: "2025-12-10T19:01:03.131410+01:00"
+﻿status: "pending"

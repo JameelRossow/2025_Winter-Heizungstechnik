@@ -10,24 +10,31 @@ const STATUS_META = {
 };
 
 const HOME_SCALE_CLASS = 'home--scaled';
+const HOME_MIN_SCALE_CLASS = 'home--minscale';
 const HOME_SCALE_VAR = '--home-scale';
+const HOME_SCALE_ROOT_SELECTOR = '.home-scale-root';
+const HOME_MIN_SCALE = 0.55;
+const HOME_SCALE_EPSILON = 0.001;
+const HOME_BASE_WIDTH_FALLBACK = 960;
 let homeScaleObserver = null;
-let homeScaleInitialized = false;
+let homeScaleListenersAttached = false;
 
 async function initHome() {
   try {
     const chapters = await loadManifest();
     if (!chapters.length) {
       statusEl.textContent = 'Keine Kapitel konfiguriert.';
+      scheduleHomeScaleUpdate();
       return;
     }
     renderChapters(chapters);
     statusEl.textContent = 'Kapitelübersicht bereit.';
-    initHomeScaling();
+    scheduleHomeScaleUpdate();
   } catch (error) {
     console.error(error);
     statusEl.textContent = 'Fehler beim Laden der Kapitelliste.';
     renderHomeError(error);
+    scheduleHomeScaleUpdate();
   }
 }
 
@@ -72,7 +79,7 @@ function renderChapters(chapters) {
     const visible = chapter?.visible_in_viewer !== false;
 
     const idCell = document.createElement('td');
-    idCell.textContent = chapter?.id || '—';
+    idCell.textContent = chapter?.id || '--';
 
     const titleCell = document.createElement('td');
     const titleStrong = document.createElement('strong');
@@ -84,7 +91,7 @@ function renderChapters(chapters) {
     titleCell.appendChild(metaText);
 
     const descriptionCell = document.createElement('td');
-    descriptionCell.textContent = chapter?.description || '—';
+    descriptionCell.textContent = chapter?.description || '--';
 
     const statusCell = document.createElement('td');
     statusCell.appendChild(createStatusPill(chapter?.status));
@@ -97,7 +104,7 @@ function renderChapters(chapters) {
       link.textContent = 'Öffnen';
       actionCell.appendChild(link);
     } else {
-      actionCell.textContent = '—';
+      actionCell.textContent = '--';
     }
 
     row.appendChild(idCell);
@@ -107,6 +114,7 @@ function renderChapters(chapters) {
     row.appendChild(actionCell);
     tableBody.appendChild(row);
   });
+  scheduleHomeScaleUpdate();
 }
 
 function renderHomeError(error) {
@@ -114,36 +122,53 @@ function renderHomeError(error) {
   errorEl.textContent = error?.message ?? 'Unbekannter Fehler beim Laden der Kapitel.';
 }
 
-function initHomeScaling() {
-  if (homeScaleInitialized) return;
-  homeScaleInitialized = true;
-  const table = document.querySelector('.chapter-table');
-  if (!table) return;
-
-  const root = document.documentElement;
-
-  const applyScale = () => {
-    const availableWidth = Math.max(window.innerWidth - 32, 240);
-    const neededWidth = Math.max(table.scrollWidth, table.offsetWidth, 1);
-    if (neededWidth <= availableWidth + 1) {
-      root.classList.remove(HOME_SCALE_CLASS);
-      root.style.removeProperty(HOME_SCALE_VAR);
-      return;
-    }
-    const rawScale = availableWidth / neededWidth;
-    const scale = Math.max(Math.min(rawScale, 1), 0.3);
-    root.style.setProperty(HOME_SCALE_VAR, scale.toFixed(3));
-    root.classList.add(HOME_SCALE_CLASS);
-  };
-
-  const debouncedApply = () => window.requestAnimationFrame(applyScale);
-  window.addEventListener('resize', debouncedApply);
-  window.addEventListener('orientationchange', debouncedApply);
-  if (typeof ResizeObserver === 'function') {
-    homeScaleObserver = new ResizeObserver(debouncedApply);
-    homeScaleObserver.observe(table);
+function updateHomeScale() {
+  const rootEl = document.querySelector(HOME_SCALE_ROOT_SELECTOR);
+  const htmlEl = document.documentElement;
+  const body = document.body;
+  if (!rootEl || !htmlEl || !body) {
+    return;
   }
-  applyScale();
+  const measuredWidth = rootEl.offsetWidth;
+  const baseWidth = measuredWidth > 0 ? measuredWidth : HOME_BASE_WIDTH_FALLBACK;
+  const viewportWidth = Math.max(window.innerWidth || htmlEl.clientWidth || baseWidth, 320);
+  let scale = viewportWidth / baseWidth;
+  if (scale > 1) {
+    scale = 1;
+  } else if (scale < HOME_MIN_SCALE) {
+    scale = HOME_MIN_SCALE;
+  }
+  htmlEl.style.setProperty(HOME_SCALE_VAR, scale.toFixed(3));
+  const isScaled = scale < 0.999;
+  body.classList.toggle(HOME_SCALE_CLASS, isScaled);
+  const isMinScale = scale <= HOME_MIN_SCALE + HOME_SCALE_EPSILON;
+  body.classList.toggle(HOME_MIN_SCALE_CLASS, isMinScale);
 }
 
-window.addEventListener('DOMContentLoaded', initHome);
+function scheduleHomeScaleUpdate() {
+  window.requestAnimationFrame(updateHomeScale);
+}
+
+function initHomeScaling() {
+  if (homeScaleListenersAttached) {
+    return;
+  }
+  homeScaleListenersAttached = true;
+  window.addEventListener('resize', scheduleHomeScaleUpdate);
+  window.addEventListener('orientationchange', scheduleHomeScaleUpdate);
+  window.addEventListener('load', scheduleHomeScaleUpdate);
+
+  if (typeof ResizeObserver === 'function') {
+    const rootEl = document.querySelector(HOME_SCALE_ROOT_SELECTOR);
+    if (rootEl) {
+      homeScaleObserver = new ResizeObserver(scheduleHomeScaleUpdate);
+      homeScaleObserver.observe(rootEl);
+    }
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  initHome();
+  initHomeScaling();
+  scheduleHomeScaleUpdate();
+});

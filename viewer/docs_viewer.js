@@ -16,8 +16,15 @@ const chapterEntryMap = new Map();
 let currentSelectedChapterId = null;
 let pendingHoverChapterId = null;
 let availableChapters = [];
-let mobileScaleInitialized = false;
-let mobileScaleObserver = null;
+const VIEWER_SCALE_CLASS = 'viewer--scaled';
+const VIEWER_MIN_SCALE_CLASS = 'viewer--minscale';
+const VIEWER_SCALE_VAR = '--viewer-scale';
+const VIEWER_SCALE_ROOT_SELECTOR = '.viewer-scale-root';
+const VIEWER_MIN_SCALE = 0.55;
+const VIEWER_SCALE_EPSILON = 0.001;
+const VIEWER_BASE_WIDTH_FALLBACK = 1200;
+let viewerScaleObserver = null;
+let viewerScaleListenersAttached = false;
 let pdfPreviewInitialized = false;
 let pdfModal = null;
 let pdfModalIframe = null;
@@ -26,10 +33,6 @@ let pdfModalCloseButton = null;
 let pdfModalTrigger = null;
 let scrollSpyScheduled = false;
 let scrollSpyInitialized = false;
-const VIEWER_MIN_SCALE = 0.55;
-const VIEWER_SCALE_EPSILON = 0.001;
-const VIEWER_VIEWPORT_PADDING = 32;
-const VIEWER_MIN_AVAILABLE_WIDTH = 240;
 
 const markdown = window.markdownit?.({
   html: true,
@@ -168,11 +171,13 @@ async function initViewer() {
     console.error('Viewer container missing');
     return;
   }
+  initViewerScaling();
 
   try {
     const manifest = await loadManifest();
     if (!Array.isArray(manifest) || !manifest.length) {
       statusEl.textContent = 'Keine Kapitel vorhanden.';
+      scheduleViewerScaleUpdate();
       return;
     }
 
@@ -180,6 +185,7 @@ async function initViewer() {
     const chapters = availableChapters;
     if (!chapters.length) {
       statusEl.textContent = 'Keine sichtbaren Kapitel konfiguriert.';
+      scheduleViewerScaleUpdate();
       return;
     }
     const hashChapterId = readChapterIdFromHash();
@@ -194,11 +200,12 @@ async function initViewer() {
     initPdfPreviewInteractions();
     scrollToChapter(currentSelectedChapterId, { behavior: 'auto' });
     statusEl.textContent = 'Bereit';
-    initResponsiveScaling();
+    scheduleViewerScaleUpdate();
     initScrollSpy();
   } catch (error) {
     console.error(error);
     statusEl.textContent = 'Fehler beim Laden der Dokumentation.';
+    scheduleViewerScaleUpdate();
   }
 }
 
@@ -206,6 +213,7 @@ async function renderChapters(chapters) {
   for (const chapter of chapters) {
     await appendChapter(chapter);
   }
+  scheduleViewerScaleUpdate();
 }
 
 async function appendChapter(chapter) {
@@ -365,47 +373,49 @@ function calculateAvailableContentHeight(section) {
   return section.clientHeight - paddingTop - paddingBottom;
 }
 
-function initResponsiveScaling() {
-  if (mobileScaleInitialized || !viewer) {
-    return;
-  }
-  mobileScaleInitialized = true;
-  const root = document.documentElement;
+function updateViewerScale() {
+  const rootEl = document.querySelector(VIEWER_SCALE_ROOT_SELECTOR);
+  const htmlEl = document.documentElement;
   const body = document.body;
-  if (!root || !body) {
+  if (!rootEl || !htmlEl || !body) {
     return;
   }
-
-  const applyScale = () => {
-    const firstPage = viewer.querySelector('.doc-page');
-    if (!firstPage) {
-      return;
-    }
-    const baseWidth = Math.max(firstPage.offsetWidth, firstPage.scrollWidth, 1);
-    const viewportWidth = root.clientWidth || window.innerWidth || baseWidth;
-    const availableWidth = Math.max(viewportWidth - VIEWER_VIEWPORT_PADDING, VIEWER_MIN_AVAILABLE_WIDTH);
-    let scale = availableWidth / baseWidth;
-    if (scale > 1) {
-      scale = 1;
-    } else if (scale < VIEWER_MIN_SCALE) {
-      scale = VIEWER_MIN_SCALE;
-    }
-    root.style.setProperty('--viewer-scale', scale.toFixed(3));
-    const isScaled = scale < 0.999;
-    body.classList.toggle('viewer--scaled', isScaled);
-    const isMinScale = scale <= VIEWER_MIN_SCALE + VIEWER_SCALE_EPSILON;
-    body.classList.toggle('viewer--minscale', isMinScale);
-  };
-
-  const debouncedApply = () => window.requestAnimationFrame(applyScale);
-
-  window.addEventListener('resize', debouncedApply);
-  window.addEventListener('orientationchange', debouncedApply);
-  if (typeof ResizeObserver === 'function') {
-    mobileScaleObserver = new ResizeObserver(debouncedApply);
-    mobileScaleObserver.observe(viewer);
+  const computedWidth = parseFloat(window.getComputedStyle(rootEl).width) || 0;
+  const fallbackWidth = rootEl.offsetWidth || VIEWER_BASE_WIDTH_FALLBACK;
+  const baseWidth = computedWidth > 0 ? computedWidth : fallbackWidth;
+  const viewportWidth = Math.max(window.innerWidth || htmlEl.clientWidth || baseWidth, 320);
+  let scale = viewportWidth / baseWidth;
+  if (scale > 1) {
+    scale = 1;
+  } else if (scale < VIEWER_MIN_SCALE) {
+    scale = VIEWER_MIN_SCALE;
   }
-  applyScale();
+  htmlEl.style.setProperty(VIEWER_SCALE_VAR, scale.toFixed(3));
+  const isScaled = scale < 0.999;
+  body.classList.toggle(VIEWER_SCALE_CLASS, isScaled);
+  const isMinScale = scale <= VIEWER_MIN_SCALE + VIEWER_SCALE_EPSILON;
+  body.classList.toggle(VIEWER_MIN_SCALE_CLASS, isMinScale);
+}
+
+function scheduleViewerScaleUpdate() {
+  window.requestAnimationFrame(updateViewerScale);
+}
+
+function initViewerScaling() {
+  if (viewerScaleListenersAttached) {
+    return;
+  }
+  viewerScaleListenersAttached = true;
+  window.addEventListener('resize', scheduleViewerScaleUpdate);
+  window.addEventListener('orientationchange', scheduleViewerScaleUpdate);
+  window.addEventListener('load', scheduleViewerScaleUpdate);
+  if (typeof ResizeObserver === 'function') {
+    const rootEl = document.querySelector(VIEWER_SCALE_ROOT_SELECTOR);
+    if (rootEl) {
+      viewerScaleObserver = new ResizeObserver(scheduleViewerScaleUpdate);
+      viewerScaleObserver.observe(rootEl);
+    }
+  }
 }
 
 function renderChapterMenu(chapters) {
@@ -768,5 +778,8 @@ function getViewerAnchorOffset() {
   return (header.offsetHeight || 0) + marginBottom + 16;
 }
 
-window.addEventListener('DOMContentLoaded', initViewer);
+window.addEventListener('DOMContentLoaded', () => {
+  scheduleViewerScaleUpdate();
+  initViewer();
+});
 window.addEventListener('hashchange', handleHashChange);

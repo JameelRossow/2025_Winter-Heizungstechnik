@@ -2,13 +2,14 @@
   color: #1b1b1b;
   background: #f3f4f6;
   --home-scale: 1;
+  --home-base-width: 960px;
 }
 
 * {
   box-sizing: border-box;
 }
 
-body {
+body.home {
   margin: 0;
   font-family: "Century Gothic", system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
@@ -16,11 +17,23 @@ body {
   min-height: 100vh;
 }
 
-.home-shell {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 2rem 1rem 3rem;
+.home-outer {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+}
+
+.home-scale-root {
+  width: var(--home-base-width, 960px);
+  max-width: var(--home-base-width, 960px);
   transform-origin: top center;
+  transform: scale(var(--home-scale, 1));
+}
+
+.home-shell {
+  padding: 2rem 1rem 3rem;
 }
 
 .home-header {
@@ -132,21 +145,46 @@ body {
   margin-bottom: 1.25rem;
 }
 
-@media (max-width: 720px) {
-  .chapter-table th,
-  .chapter-table td {
-    display: block;
-  }
-
-  .chapter-table tbody tr {
-    margin-bottom: 1rem;
-    display: block;
-    border-bottom: 1px solid #e5e7eb;
-  }
-}
-
-.home--scaled .home-shell {
-  transform: scale(var(--home-scale));
+body.home--scaled .home-scale-root {
   margin-top: 1.5rem;
   margin-bottom: 2rem;
+}
+
+.home-mobile-hint {
+  display: none;
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #f8fafc;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.45);
+  z-index: 40;
+}
+
+body.home--minscale .home-mobile-hint {
+  display: block;
+}
+
+@media print {
+  :root,
+  body.home {
+    background: white;
+    color: #1b1b1b;
+  }
+
+  .home-outer {
+    overflow: visible;
+  }
+
+  .home-scale-root {
+    transform: none !important;
+  }
+
+  .home-mobile-hint {
+    display: none !important;
+  }
 }
