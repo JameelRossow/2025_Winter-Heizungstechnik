@@ -1,0 +1,18 @@
+status: "done"
+created: "251210_173500"
+type: "code"
+description: "Grundriss-Kapitel aufgeteilt (KG/EG/OG), Folgekapitel verschoben und PDF-Viewer für Inline-Ansichten optimiert"
+commit_message: "Code: Viewer-PDFs für Grundrisse KG/EG/OG"
+files:
+  - docs/8.2_Grundriss_Kellergeschoss.md
+  - docs/8.3_Grundriss_Erdgeschoss.md
+  - docs/8.4_Grundriss_Obergeschoss.md
+  - docs/8.5_Programmausgaben_Auslegung.md
+  - docs/8.6_Herstellerdatenblätter.md
+  - docs/8.7_Material_und_Bauteillisten.md
+  - docs/8.8_Nomenklatur_und_Formelzeichen.md
+  - docs/doc_manifest.json
+  - viewer/docs_viewer.js
+  - viewer/viewer.css
+  - commit/251210_173500_code_pdf-viewer-preview.yaml
+executed_at: "2025-12-10T17:09:30.206733+00:00"
