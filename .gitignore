@@ -24,3 +24,5 @@ dist/
 Thumbs.db
 .DS_Store
 run_id.json
+agent_workflow/logs/
+*.bak

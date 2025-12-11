@@ -1,0 +1,4 @@
+﻿chapters:
+  - name: beispiel
+    path: docs/beispiel.md
+    description: "Kurzer Hinweis, worum es im Kapitel geht."
