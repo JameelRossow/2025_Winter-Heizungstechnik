@@ -1,9 +1,10 @@
 ﻿agents:
   expert:
     name: heizungsexperte
-    model: gpt-5.1
+    model: gpt-5.1-thinking
     temperature: 0.2
     instructions_path: config/prompts/expert_system.md
+
   critic:
     name: qualitaetspruefer
     model: gpt-5.1
