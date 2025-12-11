@@ -3,10 +3,10 @@
     name: heizungsexperte
     model: gpt-5.1-thinking
     temperature: 0.2
-    instructions_path: config/prompts/expert_system.md
+    instructions_path: prompts/expert_system.md
 
   critic:
     name: qualitaetspruefer
     model: gpt-5.1
     temperature: 0.25
-    instructions_path: config/prompts/critic_system.md
+    instructions_path: prompts/critic_system.md
