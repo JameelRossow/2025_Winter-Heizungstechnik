@@ -1,28 +1,33 @@
-<svg width="640" height="160" viewBox="0 0 640 160"
+<svg width="100%" height="160" viewBox="0 0 640 160"
      xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink"
-     role="img" aria-labelledby="title desc">
+     role="img" aria-labelledby="title desc"
+     preserveAspectRatio="xMidYMid meet">
   <title id="title">Winter 2025 – Heizungstechnik LP3</title>
   <desc id="desc">Logo mit Haus, Fußbodenheizung, Heizkörper und Wärmepumpe für eine LP3-Heizungsplanung</desc>
 
   <defs>
+    <!-- Card-Verlauf -->
     <linearGradient id="cardGradient" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#111827"/>
       <stop offset="40%" stop-color="#020617"/>
       <stop offset="100%" stop-color="#020617"/>
     </linearGradient>
 
+    <!-- FBH-Verlauf -->
     <linearGradient id="fbhGradient" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#0ea5e9"/>
       <stop offset="50%" stop-color="#22c55e"/>
       <stop offset="100%" stop-color="#f97316"/>
     </linearGradient>
 
+    <!-- Heizkörper-Verlauf -->
     <linearGradient id="radiatorGradient" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#e5f2ff"/>
       <stop offset="100%" stop-color="#fed7aa"/>
     </linearGradient>
 
+    <!-- Icon Glow -->
     <filter id="iconGlow" x="-60%" y="-60%" width="220%" height="220%">
       <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
       <feColorMatrix in="blur" type="matrix"
@@ -37,35 +42,41 @@
     </filter>
   </defs>
 
-  <rect x="0" y="0" width="640" height="160" fill="#ffffff"/>
+  <!-- FULL-WIDTH BACKGROUND -->
+  <rect x="0" y="0" width="100%" height="160" fill="url(#cardGradient)"/>
 
-  <rect x="16" y="16" width="608" height="128" rx="20" fill="url(#cardGradient)"/>
-
+  <!-- ICON LEFT -->
   <g transform="translate(40,30)" filter="url(#iconGlow)">
     <rect x="0" y="0" width="96" height="100" rx="18" fill="#020617" stroke="#1f2937" stroke-width="2"/>
 
     <g transform="translate(10,10)">
+      <!-- Dach -->
       <path d="M8 26 L32 6 L56 26"
             fill="none" stroke="#e5e7eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 
+      <!-- Haus -->
       <rect x="12" y="26" width="40" height="40" rx="4" fill="none" stroke="#e5e7eb" stroke-width="2"/>
 
+      <!-- FBH-Schlangen -->
       <g transform="translate(14,48)">
         <path d="M0 0 H28 V8 H4 V16 H24"
               fill="none" stroke="url(#fbhGradient)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
       </g>
 
+      <!-- Heizkörper -->
       <g transform="translate(36,30)">
         <rect x="0" y="0" width="10" height="20" rx="2" fill="url(#radiatorGradient)" stroke="#e5e7eb" stroke-width="0.8"/>
         <rect x="-2" y="18" width="14" height="3" rx="1.5" fill="#9ca3af"/>
       </g>
 
+      <!-- Thermostat -->
       <g transform="translate(52,16)">
         <circle cx="0" cy="0" r="4.2" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="0.8"/>
         <path d="M0 -2.2 L0 1.2" stroke="#9ca3af" stroke-width="0.9" stroke-linecap="round"/>
         <circle cx="0" cy="2.3" r="0.9" fill="#f97316"/>
       </g>
 
+      <!-- Wärmepumpe -->
       <g transform="translate(60,40)">
         <rect x="0" y="6" width="18" height="18" rx="3" fill="#020617" stroke="#e5e7eb" stroke-width="1"/>
         <circle cx="9" cy="15" r="5.5" fill="#020617" stroke="#38bdf8" stroke-width="1"/>
@@ -77,6 +88,7 @@
     </g>
   </g>
 
+  <!-- TEXT -->
   <g transform="translate(160,52)"
      font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
 
