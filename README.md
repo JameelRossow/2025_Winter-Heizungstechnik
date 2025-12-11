@@ -9,11 +9,6 @@ Anstatt die Unterlagen in statische Word-Formulare zu pressen, setze ich auf ein
 Agenten generieren Rohtexte, Skripte validieren und konsolidieren Inhalte, und der Viewer stellt alles sauber als Markdown-„Seiten“ dar.  
 So kann ich mich auf das Wesentliche konzentrieren: Systemkonzept, Berechnungen und technische Argumentation.
 
-## 🌐 Projekt-Viewer (GitHub Pages)
-Die Dokumentation kann direkt hier betrachtet werden:  
-👉 https://jameelrossow.github.io/2025_Winter-Heizungstechnik/
-
-
 
 ## 📁 Projektstruktur im Überblick
 | Bereich | Zweck |
@@ -25,6 +20,11 @@ Die Dokumentation kann direkt hier betrachtet werden:
 | `viewer` | HTML/CSS/JS-Frontend zur lokalen Ansicht der einzelnen Markdown-Kapitel und zur Vorbereitung für GitHub Pages. |
 | `commit` / `commit.py` | Automatisiertes Commit-System: erzeugt strukturierte Commit-Messages und dokumentiert Agent-Iterationen. |
 | `.venv`, `.env`, `run.py`, `stop.py` | Technische Basis: virtuelle Umgebung, Environment-Variablen sowie Start-/Stop-Skripte für den Agent-Stack. |
+
+## 🌐 Projekt-Viewer (GitHub Pages)
+Die Dokumentation kann direkt hier betrachtet werden:  
+👉 https://jameelrossow.github.io/2025_Winter-Heizungstechnik/
+
 
 ## ℹ️ Ziel dieses Repositories
 Dieses Repo dient als:
