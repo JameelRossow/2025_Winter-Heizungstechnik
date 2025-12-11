@@ -1,0 +1,8 @@
+﻿# Default-Run-Konfiguration für agent_workflow/run_agents.py
+# Werte hier eintragen und anschließend einfach `python agent_workflow/run_agents.py` ausführen.
+
+chapter: docs/0.3_Nova_Projekteinrichtung.md
+goal: "Kapitel 0.3 NOVA-Projekteinrichtung für Prüfungsdokumentation nachziehen"
+docs_catalog: docs.yaml
+max_rounds: 3
+log: agent_workflow/logs/nova_projekteinrichtung.md

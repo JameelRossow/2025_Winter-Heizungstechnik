@@ -65,11 +65,16 @@ def load_agent_specs(config_path: Path) -> dict[str, AgentSpec]:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Mehragentenlauf für Runbook-Kapitel")
-    parser.add_argument("--chapter", "-c", required=True, help="Pfad oder Name des Kapitels")
+    parser.add_argument("--chapter", "-c", help="Pfad oder Name des Kapitels")
     parser.add_argument("--goal", help="Kurzbeschreibung des Ziels")
     parser.add_argument("--docs-catalog", help="Optionales docs.yaml zur Namensauflösung")
-    parser.add_argument("--max-rounds", type=int, default=3, help="Maximale Runden pro Lauf")
+    parser.add_argument("--max-rounds", type=int, help="Maximale Runden pro Lauf")
     parser.add_argument("--log", help="Eigener Log-Pfad (Standard: agent_workflow/logs/<timestamp>.md)")
+    parser.add_argument(
+        "--config",
+        help="YAML mit Standardwerten (default: agent_workflow/run_agents.yaml)",
+        default=str((BASE_DIR / "run_agents.yaml").resolve()),
+    )
     return parser.parse_args()
 
 
@@ -187,12 +192,36 @@ def summarize_env_hint() -> str:
     return "OPENAI_API_KEY gefunden."
 
 
+def load_run_config(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    return data or {}
+
+
+def resolve_runtime_value(cli_value: Any, config: dict[str, Any], key: str, fallback: Any = None) -> Any:
+    if cli_value is not None:
+        return cli_value
+    return config.get(key, fallback)
+
+
 async def run_workflow() -> None:
     args = parse_args()
-    max_rounds = ensure_max_rounds(args.max_rounds)
-    catalog_path = Path(args.docs_catalog).resolve() if args.docs_catalog else None
-    chapter_path = resolve_chapter_path(args.chapter, catalog_path)
-    goal = args.goal or chapter_path.stem.replace("_", " ")
+    config_path = Path(args.config).resolve() if args.config else None
+    config_data = load_run_config(config_path) if config_path else {}
+
+    chapter_value = resolve_runtime_value(args.chapter, config_data, "chapter")
+    if not chapter_value:
+        raise SystemExit("Kein Kapitel angegeben (CLI --chapter oder run_agents.yaml).")
+    goal_value = resolve_runtime_value(args.goal, config_data, "goal")
+    docs_catalog_value = resolve_runtime_value(args.docs_catalog, config_data, "docs_catalog")
+    max_rounds_value = resolve_runtime_value(args.max_rounds, config_data, "max_rounds", 3)
+    log_value = resolve_runtime_value(args.log, config_data, "log")
+
+    max_rounds = ensure_max_rounds(int(max_rounds_value))
+    catalog_path = Path(docs_catalog_value).resolve() if docs_catalog_value else None
+    chapter_path = resolve_chapter_path(chapter_value, catalog_path)
+    goal = goal_value or chapter_path.stem.replace("_", " ")
 
     specs = load_agent_specs(CONFIG_PATH)
     try:
@@ -202,7 +231,7 @@ async def run_workflow() -> None:
         raise SystemExit(f"Fehlende Agentendefinition: {exc}") from exc
 
     timestamp = dt.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
-    log_path = determine_log_path(args.log, timestamp)
+    log_path = determine_log_path(log_value, timestamp)
 
     conversation: list[dict[str, Any]] = []
     final_status = "STATUS: RUECKFRAGE_FUER_NUTZER"
