@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="README.svg" alt="Winter 2025 – Heizungstechnik LP3">
+  <img src="README.svg" alt="Winter 2025 – Heizungstechnik LP3" width="480">
 </p>
 
 ## Dokumentation zur Abschlussprüfung – TGA-Systemplanung Heizung
@@ -12,6 +12,8 @@ So kann ich mich auf das Wesentliche konzentrieren: Systemkonzept, Berechnungen 
 ## 🌐 Projekt-Viewer (GitHub Pages)
 Die Dokumentation kann direkt hier betrachtet werden:  
 👉 https://jameelrossow.github.io/2025_Winter-Heizungstechnik/
+
+
 
 ## 📁 Projektstruktur im Überblick
 | Bereich | Zweck |

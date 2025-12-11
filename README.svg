@@ -1,8 +1,7 @@
-<svg width="100%" height="160" viewBox="0 0 640 160"
+<svg width="640" height="160" viewBox="0 0 640 160"
      xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink"
-     role="img" aria-labelledby="title desc"
-     preserveAspectRatio="xMidYMid meet">
+     role="img" aria-labelledby="title desc">
   <title id="title">Winter 2025 – Heizungstechnik LP3</title>
   <desc id="desc">Logo mit Haus, Fußbodenheizung, Heizkörper und Wärmepumpe für eine LP3-Heizungsplanung</desc>
 
@@ -27,7 +26,7 @@
       <stop offset="100%" stop-color="#fed7aa"/>
     </linearGradient>
 
-    <!-- Icon Glow -->
+    <!-- Icon-Glow -->
     <filter id="iconGlow" x="-60%" y="-60%" width="220%" height="220%">
       <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
       <feColorMatrix in="blur" type="matrix"
@@ -42,10 +41,13 @@
     </filter>
   </defs>
 
-  <!-- FULL-WIDTH BACKGROUND -->
-  <rect x="0" y="0" width="100%" height="160" fill="url(#cardGradient)"/>
+  <!-- Hintergrund -->
+  <rect x="0" y="0" width="640" height="160" fill="#ffffff"/>
 
-  <!-- ICON LEFT -->
+  <!-- Card -->
+  <rect x="16" y="16" width="608" height="128" rx="20" fill="url(#cardGradient)"/>
+
+  <!-- LINKER ICONBLOCK -->
   <g transform="translate(40,30)" filter="url(#iconGlow)">
     <rect x="0" y="0" width="96" height="100" rx="18" fill="#020617" stroke="#1f2937" stroke-width="2"/>
 
@@ -88,7 +90,7 @@
     </g>
   </g>
 
-  <!-- TEXT -->
+  <!-- TEXTBLOCK RECHTS -->
   <g transform="translate(160,52)"
      font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
 
@@ -100,6 +102,7 @@
       LP3 HEIZUNGSTECHNIK
     </text>
 
+    <!-- Signaturartige Schrift -->
     <text x="0" y="66"
           font-size="20"
           fill="#e5e7eb"
