@@ -17,6 +17,7 @@ class DocumentService:
 
     def __post_init__(self) -> None:
         self.chapter_path = self.chapter_path.resolve()
+        self.chapter_path.parent.mkdir(parents=True, exist_ok=True)
         self.lock_path = self.chapter_path.with_suffix(self.chapter_path.suffix + ".lock")
         self.backup_path = self.chapter_path.with_suffix(self.chapter_path.suffix + ".bak")
         self._lock_acquired = False
@@ -37,6 +38,8 @@ class DocumentService:
         self._lock_acquired = False
 
     def load(self) -> str:
+        if not self.chapter_path.exists():
+            return ""
         return self.chapter_path.read_text(encoding="utf-8")
 
     def backup(self, content: str | None = None) -> None:
