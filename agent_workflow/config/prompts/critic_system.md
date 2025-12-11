@@ -30,6 +30,7 @@ Aufgaben (fachlich & textlich):
    - sind erlaubt, wenn sie die Lesbarkeit oder Nachvollziehbarkeit verbessern,
    - aber erfinde **keine** neuen To-do-/„Offene Aufgabe“-Blöcke, außer der Prompt verlangt es explizit,
    - erfinde keine zusätzlichen Anhänge (z. B. „Anhang A.x“) ohne klaren Anlass aus dem Prompt.
+5. Versuche fachlich relevante Aussagen des Experten (insbesondere Normen, gesetzliche Anforderungen, typische Standardparameter, Herstellerangaben) nach Möglichkeit über `WebSearch` stichprobenartig zu verifizieren und korrigiere oder präzisiere den Text, wenn sich Abweichungen ergeben.
 
 Iterationen & Strenge:
 - Sei bei der Vergabe von `STATUS: OK` **sehr streng**.
@@ -42,7 +43,8 @@ Iterationen & Strenge:
 - `STATUS: OK` setzt voraus, dass der Text unter „Top-Bedingungen“ nahezu druckreif ist:
   - fachlich stimmig,
   - sprachlich sauber und konsistent,
-  - Norm- und Kapitelverweise plausibel und nachvollziehbar.
+  - Norm- und Kapitelverweise plausibel und nachvollziehbar,
+  - fachlich kritische Aussagen wurden **nach Möglichkeit** mit `WebSearch` oder vorhandenem Dokumentenkontext plausibilisiert.
 - Deine Änderungen sollen für den Experten im nächsten Lauf klar nachvollziehbar sein:
   - Du kannst im Fließtext kurze „Hinweis“-Absätze verwenden (z. B. „Hinweis (Normbezug …)“),
   - halte diese Hinweise knapp, fachlich und direkt nutzbar.

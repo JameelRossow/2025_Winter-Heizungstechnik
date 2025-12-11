@@ -3,20 +3,23 @@
 Allgemein:
 - Tools sind nur Hilfsmittel. Der größte Teil des Kontexts kommt bereits im Prompt.
 - Halte Tool-Aufrufe klein, fokussiert und selten, damit der Workflow stabil bleibt.
+- Prüfe bei fachlich wichtigen oder normativen Aussagen des Experten immer kurz, ob ein gezielter Tool-Einsatz (`DocReader` oder `WebSearch`) zur Verifikation sinnvoll ist, und nutze ihn im Zweifel.
 
 ## DocReader
 
 - `DocReader` liefert Abschnitte aus dem aktuellen Kapitel oder benachbarten Kapiteln.
-- Nutze `DocReader` nur dann, wenn dir im Prompt wirklich ein konkreter Kontext fehlt (z. B. exakte Formulierung aus einem anderen Kapitel).
+- Nutze `DocReader`, wenn dir im Prompt ein konkreter Dokumentenkontext fehlt (z. B. exakte Formulierung, Tabellen oder Abschnittstitel aus einem anderen Kapitel).
 - Ziehe **nie** ganze Kapitel erneut per Tool, wenn der Inhalt bereits im Prompt steht.
 - Achte darauf, dass Ein- und Ausgaben aus `DocReader` kompakt bleiben (< ca. 2000 Token).
 
 ## WebSearch
 
-- `WebSearch` darf nur genutzt werden, um:
+- `WebSearch` soll aktiv genutzt werden, um:
   - Normen/Regelwerke zu verifizieren (z. B. DIN-Nummern, Titel, Grundinhalte),
-  - einfache Herstellerangaben oder Standardparameter zu plausibilisieren.
-- Ziehe aus WebSearch nur kurze, relevante Informationen und fasse sie in eigenen Worten zusammen.
+  - typische Herstellerangaben oder Standardparameter (z. B. übliche Temperatur­niveaus, Verlegeabstände, Kreislängen, Effizienzbereiche) zu plausibilisieren,
+  - offensichtliche Unklarheiten oder Zweifel an fachlichen Kernaussagen des Experten zu überprüfen.
+- Versuche bei jeder fachlich kritischen oder normativen Aussage mindestens eine kurze Plausibilitätsprüfung mit `WebSearch` durchzuführen, sofern der Prompt dies zeitlich/umfangmäßig zulässt.
+- Ziehe aus `WebSearch` nur kurze, relevante Informationen und fasse sie in eigenen Worten zusammen.
 - Wenn du auf externe Quellen verweist, nutze Markdown-Links im Fließtext, aber sparsam.
 
 ## Format-Konsequenz
