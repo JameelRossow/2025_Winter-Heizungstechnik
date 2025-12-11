@@ -27,6 +27,8 @@ BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent
 CONFIG_PATH = BASE_DIR / "config" / "agents.yaml"
 LOG_DIR = BASE_DIR / "logs"
+CONFIG_DIR = BASE_DIR / "run_agents"
+USED_MARKER_PREFIX = "# used:"
 
 
 @dataclass
@@ -82,11 +84,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--docs-catalog", help="Optionales docs.yaml zur Namensauflösung")
     parser.add_argument("--max-rounds", type=int, help="Maximale Runden pro Lauf")
     parser.add_argument("--log", help="Eigener Log-Pfad (Standard: agent_workflow/logs/<timestamp>.md)")
-    parser.add_argument(
-        "--config",
-        help="YAML mit Standardwerten (default: agent_workflow/run_agents.yaml)",
-        default=str((BASE_DIR / "run_agents.yaml").resolve()),
-    )
+    parser.add_argument("--config", help="Pfad zu einer Run-Konfiguration in one_agents/")
     return parser.parse_args()
 
 
@@ -217,9 +215,68 @@ def resolve_runtime_value(cli_value: Any, config: dict[str, Any], key: str, fall
     return config.get(key, fallback)
 
 
+def list_config_files() -> list[Path]:
+    CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    configs = sorted(
+        [p for p in CONFIG_DIR.glob("*.y*ml") if p.is_file()],
+        key=lambda p: p.name.lower(),
+    )
+    return configs
+
+
+def config_is_used(path: Path) -> bool:
+    try:
+        text = path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return False
+    return USED_MARKER_PREFIX in text
+
+
+def choose_config_interactively() -> Path:
+    configs = list_config_files()
+    if not configs:
+        raise SystemExit(f"Keine YAML-Datei in {CONFIG_DIR} gefunden.")
+
+    unused = [p for p in configs if not config_is_used(p)]
+    used = [p for p in configs if config_is_used(p)]
+    ordered = unused + used
+    print("Verfügbare Konfigurationen:")
+    for idx, path in enumerate(unused, start=1):
+        print(f"  {idx}. {path.name} (unbenutzt)")
+    offset = len(unused)
+    for jdx, path in enumerate(used, start=1):
+        print(f"  {offset + jdx}. {path.name} (bereits benutzt)")
+
+    while True:
+        choice = input("Bitte Nummer wählen: ").strip()
+        if not choice.isdigit():
+            print("Ungültige Eingabe. Bitte nur eine Zahl eingeben.")
+            continue
+        idx = int(choice)
+        if 1 <= idx <= len(ordered):
+            return ordered[idx - 1]
+        print("Nummer außerhalb des Bereichs.")
+
+
+def mark_config_used(path: Path, timestamp: str) -> None:
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except FileNotFoundError:
+        return
+    lines = [line for line in lines if not line.startswith(USED_MARKER_PREFIX)]
+    lines.append(f"{USED_MARKER_PREFIX} {timestamp}")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 async def run_workflow() -> None:
     args = parse_args()
-    config_path = Path(args.config).resolve() if args.config else None
+    if args.config:
+        config_path = Path(args.config).resolve()
+        if not config_path.exists():
+            raise SystemExit(f"Konfigurationsdatei {config_path} existiert nicht.")
+    else:
+        config_path = choose_config_interactively()
+
     config_data = load_run_config(config_path) if config_path else {}
 
     chapter_value = resolve_runtime_value(args.chapter, config_data, "chapter")
@@ -311,6 +368,9 @@ async def run_workflow() -> None:
     log_content = build_log(conversation, diff_text, log_meta)
     log_path.parent.mkdir(parents=True, exist_ok=True)
     log_path.write_text(log_content, encoding="utf-8", newline="\n")
+
+    if config_path:
+        mark_config_used(config_path, timestamp)
 
     print(f"Log gespeichert unter: {log_path}")
     print(f"Finaler Status: {final_status}")
