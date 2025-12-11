@@ -2,7 +2,6 @@
   expert:
     name: heizungsexperte
     model: gpt-5.1
-    temperature: 0.2
     reasoning:
       effort: medium
     verbosity: medium
@@ -11,7 +10,6 @@
   critic:
     name: qualitaetspruefer
     model: gpt-5.1
-    temperature: 0.25
     reasoning:
       effort: low
     verbosity: low

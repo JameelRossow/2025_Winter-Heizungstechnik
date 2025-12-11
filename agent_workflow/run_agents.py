@@ -34,7 +34,6 @@ class AgentSpec:
     key: str
     name: str
     model: str | None
-    temperature: float | None
     instructions: str
     reasoning_effort: str | None = None
     verbosity: str | None = None
@@ -44,11 +43,7 @@ class AgentSpec:
         if self.reasoning_effort:
             reasoning_obj = Reasoning(effort=self.reasoning_effort)
 
-        settings = ModelSettings(
-            temperature=self.temperature,
-            reasoning=reasoning_obj,
-            verbosity=self.verbosity,
-        )
+        settings = ModelSettings(reasoning=reasoning_obj, verbosity=self.verbosity)
         return Agent(
             name=self.name,
             instructions=self.instructions,
@@ -73,10 +68,9 @@ def load_agent_specs(config_path: Path) -> dict[str, AgentSpec]:
             key=key,
             name=data.get("name", key),
             model=data.get("model"),
-            temperature=data.get("temperature"),
             instructions=instructions,
-             reasoning_effort=reasoning_effort,
-             verbosity=verbosity,
+            reasoning_effort=reasoning_effort,
+            verbosity=verbosity,
         )
     return specs
 
