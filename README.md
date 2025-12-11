@@ -1,5 +1,5 @@
 <div style="background:#020617; padding:24px 0; text-align:center;">
-  <img src="README.svg" alt="Winter 2025 – Heizungstechnik LP3" style="width:100%; max-width:900px; height:auto;">
+  <img src="README.svg" alt="Winter 2025 – Heizungstechnik LP3" width="640" height="160" style="max-width:100%; height:auto;">
 </div>
 
 ## Dokumentation zur Abschlussprüfung – TGA-Systemplanung Heizung
