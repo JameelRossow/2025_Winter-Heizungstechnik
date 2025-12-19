@@ -13,6 +13,13 @@ const chapterPanelClose = document.getElementById('chapter-panel-close');
 const chapterPanelBackdrop = document.getElementById('chapter-panel-backdrop');
 const CHAPTER_HASH_PARAM = 'chapter';
 const chapterEntryMap = new Map();
+const chapterPageMap = new Map();
+let globalPageNumber = 0;
+const paginationContext = {
+  pageIndex: 0,
+  currentPage: null,
+  availableHeight: 0,
+};
 let currentSelectedChapterId = null;
 let pendingHoverChapterId = null;
 let availableChapters = [];
@@ -210,9 +217,13 @@ async function initViewer() {
 }
 
 async function renderChapters(chapters) {
+  resetPaginationContext();
+  chapterPageMap.clear();
+  globalPageNumber = 0;
   for (const chapter of chapters) {
     await appendChapter(chapter);
   }
+  viewer.querySelectorAll('.doc-page').forEach((section) => renderMathContent(section));
   scheduleViewerScaleUpdate();
 }
 
@@ -232,19 +243,26 @@ async function appendChapter(chapter) {
     const rendered = markdown?.render(body) ?? body;
     const safe = ensureSanitized(rendered);
     const nodes = htmlStringToNodes(safe);
-
-    const pages =
-      layoutType === 'a4'
-        ? paginateChapterContent(chapter, nodes, { forceBefore })
-        : [renderSingleChapterPage(chapter, nodes, { layoutType, forceBefore })];
-
-    if (breakAfter && pages.length) {
-      pages[pages.length - 1].section.classList.add('page-break-after');
+    if (layoutType !== 'a4' && chapter?.id) {
+      const anchor = document.createElement('div');
+      anchor.className = 'chapter-anchor';
+      anchor.id = `chapter-${chapter.id}`;
+      anchor.dataset.chapterId = chapter.id;
+      nodes.unshift(anchor);
     }
 
-    pages.forEach(({ section }) => {
-      renderMathContent(section);
-    });
+    if (layoutType === 'a4') {
+      appendChapterAcrossPages(chapter, nodes, { forceBefore, breakAfter });
+    } else {
+      const pages = [renderSingleChapterPage(chapter, nodes, { layoutType, forceBefore })];
+      if (breakAfter && pages.length) {
+        pages[pages.length - 1].section.classList.add('page-break-after');
+      }
+      chapterPageMap.set(
+        chapter.id,
+        pages.map((entry) => entry.section).filter(Boolean)
+      );
+    }
 
     if (currentSelectedChapterId === chapter.id) {
       markActiveChapter(chapter.id);
@@ -316,6 +334,76 @@ function renderSingleChapterPage(chapter, nodes, { layoutType, forceBefore }) {
   return page;
 }
 
+function appendChapterAcrossPages(chapter, nodes, { forceBefore, breakAfter }) {
+  if (!Array.isArray(nodes) || !nodes.length) {
+    return;
+  }
+  const anchor = document.createElement('div');
+  anchor.className = 'chapter-anchor';
+  anchor.id = `chapter-${chapter.id}`;
+  anchor.dataset.chapterId = chapter.id ?? '';
+  nodes.unshift(anchor);
+  const pagesForChapter = [];
+  let forceNewPageForNextNode = Boolean(forceBefore && paginationContext.currentPage);
+  nodes.forEach((node) => {
+    if (!node) {
+      return;
+    }
+    const page = appendNodeToPagination(node, { forceNewPage: forceNewPageForNextNode });
+    forceNewPageForNextNode = false;
+    registerChapterOnPage(chapter.id, page.section, pagesForChapter);
+  });
+  if (!pagesForChapter.length && paginationContext.currentPage) {
+    registerChapterOnPage(chapter.id, paginationContext.currentPage.section, pagesForChapter);
+  }
+  chapterPageMap.set(chapter.id, pagesForChapter);
+  if (breakAfter) {
+    paginationContext.currentPage = null;
+    paginationContext.availableHeight = 0;
+  }
+}
+
+function appendNodeToPagination(node, { forceNewPage } = {}) {
+  let page = ensurePaginationPage(forceNewPage);
+  const { contentEl } = page;
+  contentEl.appendChild(node);
+  if (contentEl.scrollHeight > paginationContext.availableHeight + 1) {
+    contentEl.removeChild(node);
+    page = ensurePaginationPage(true);
+    page.contentEl.appendChild(node);
+  }
+  return page;
+}
+
+function ensurePaginationPage(forceNewPage = false) {
+  if (!paginationContext.currentPage || forceNewPage) {
+    paginationContext.pageIndex += 1;
+    paginationContext.currentPage = createChapterPage(null, {
+      layoutType: 'a4',
+      pageIndex: paginationContext.pageIndex,
+    });
+    paginationContext.availableHeight = calculateAvailableContentHeight(
+      paginationContext.currentPage.section
+    );
+  }
+  return paginationContext.currentPage;
+}
+
+function registerChapterOnPage(chapterId, section, chapterPages) {
+  if (!section) {
+    return;
+  }
+  if (!chapterPages.includes(section)) {
+    chapterPages.push(section);
+  }
+}
+
+function resetPaginationContext() {
+  paginationContext.pageIndex = 0;
+  paginationContext.currentPage = null;
+  paginationContext.availableHeight = 0;
+}
+
 function paginateChapterContent(chapter, nodes, { forceBefore }) {
   const pages = [];
   let pageIndex = 1;
@@ -344,15 +432,20 @@ function paginateChapterContent(chapter, nodes, { forceBefore }) {
 }
 
 function createChapterPage(chapter, { layoutType, pageIndex, forceNewPageBefore }) {
+  globalPageNumber += 1;
+  const pageNumber = globalPageNumber;
   const section = document.createElement('section');
   section.classList.add('doc-page');
   if (layoutType === 'a4') {
     section.classList.add('doc-page--a4');
+  } else if (layoutType === 'deckblatt') {
+    section.classList.add('doc-page--deckblatt');
   }
   const chapterId = chapter?.id ?? '';
   section.dataset.chapterId = chapterId;
   section.dataset.pageIndex = pageIndex?.toString() ?? '1';
   section.dataset.layout = layoutType || 'default';
+  section.dataset.pageNumber = pageNumber.toString();
   if (chapterId) {
     section.id = pageIndex === 1 ? `chapter-${chapterId}` : `chapter-${chapterId}-p${pageIndex}`;
   }
@@ -362,6 +455,19 @@ function createChapterPage(chapter, { layoutType, pageIndex, forceNewPageBefore 
   const contentEl = document.createElement('div');
   contentEl.className = 'doc-content';
   section.appendChild(contentEl);
+  if (layoutType !== 'deckblatt') {
+    const footer = document.createElement('div');
+    footer.className = 'doc-page__footer';
+    const footerLeft = document.createElement('span');
+    footerLeft.className = 'doc-page__footer-left';
+    footerLeft.textContent = 'Jameel Rossow';
+    const footerRight = document.createElement('span');
+    footerRight.className = 'doc-page__footer-right';
+    footerRight.textContent = `Seite ${pageNumber}`;
+    footer.appendChild(footerLeft);
+    footer.appendChild(footerRight);
+    section.appendChild(footer);
+  }
   viewer.appendChild(section);
   return { section, contentEl };
 }
@@ -508,11 +614,10 @@ function cssEscapeValue(value) {
 }
 
 function findChapterNode(chapterId) {
-  const anchor = document.getElementById(`chapter-${chapterId}`);
-  if (anchor) return anchor;
-  if (!chapterId) return null;
-  const selector = `[data-chapter-id="${cssEscapeValue(chapterId)}"]`;
-  return document.querySelector(selector);
+  if (!chapterId) {
+    return null;
+  }
+  return document.getElementById(`chapter-${chapterId}`);
 }
 
 function scrollToChapter(chapterId, options = {}) {
@@ -531,8 +636,9 @@ function scrollToChapter(chapterId, options = {}) {
 }
 
 function markActiveChapter(chapterId) {
+  const pages = chapterPageMap.get(chapterId) ?? [];
   viewer.querySelectorAll('.doc-page').forEach((section) => {
-    section.classList.toggle('active-chapter', section.dataset.chapterId === chapterId);
+    section.classList.toggle('active-chapter', pages.includes(section));
   });
   chapterEntryMap.forEach((button, id) => {
     button.classList.toggle('active', id === chapterId);
@@ -739,33 +845,27 @@ function findChapterClosestToViewport() {
   if (!viewer) {
     return null;
   }
-  const pages = Array.from(viewer.querySelectorAll('.doc-page'));
-  if (!pages.length) {
+  const anchors = Array.from(viewer.querySelectorAll('.chapter-anchor'));
+  if (!anchors.length) {
     return null;
   }
   const anchorOffset = getViewerAnchorOffset();
-  let candidate = null;
+  let candidate = anchors[0];
   let bestDelta = Number.POSITIVE_INFINITY;
 
-  for (const page of pages) {
-    const rect = page.getBoundingClientRect();
-    if (rect.bottom <= anchorOffset + 4) {
-      continue;
-    }
+  for (const anchor of anchors) {
+    const rect = anchor.getBoundingClientRect();
     if (rect.top <= anchorOffset && rect.bottom >= anchorOffset) {
-      candidate = page;
+      candidate = anchor;
       break;
     }
     const delta = Math.abs(rect.top - anchorOffset);
     if (delta < bestDelta) {
       bestDelta = delta;
-      candidate = page;
+      candidate = anchor;
     }
   }
 
-  if (!candidate) {
-    candidate = pages[pages.length - 1];
-  }
   return candidate?.dataset.chapterId ?? null;
 }
 

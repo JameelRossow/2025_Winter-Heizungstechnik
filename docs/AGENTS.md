@@ -1,10 +1,10 @@
 ---
-status: ""
+status: "done"
 id: "AGENTS"
 title: "AGENTS"
 layout: "A4"
-force_new_page_before: true
-page_break_after: true
+force_new_page_before: false
+page_break_after: false
 visible_in_viewer: true
 ---
 # Agent Guidelines - Docs
