@@ -80,7 +80,7 @@ def parse_filename_meta(filename: Path) -> dict:
 
 
 def split_frontmatter(text: str):
-    match = re.match(r"^---\s*\n([\s\S]*?)\n---\s*\n?", text)
+    match = re.match(r"^\ufeff?\s*---\s*\r?\n([\s\S]*?)---\s*(?:\r?\n)?", text)
     if not match:
         return {}, text
     fm_text = match.group(1)
@@ -143,6 +143,8 @@ def sync_docs():
     for md_file in iter_markdown_files():
         text = md_file.read_text(encoding="utf-8")
         front, rest = split_frontmatter(text)
+        if front:
+            continue
         meta = parse_filename_meta(md_file)
         fm_block = build_frontmatter(meta, front)
         new_body = rest.lstrip("\n")
@@ -157,10 +159,13 @@ def generate_manifest():
     for md_file in iter_markdown_files():
         text = md_file.read_text(encoding="utf-8")
         front, _ = split_frontmatter(text)
+        meta = parse_filename_meta(md_file)
+        file_id = front.get("id", "") or meta["id"]
+        file_title = front.get("title", "") or meta["title"]
         entries.append(
             {
-                "id": front.get("id", ""),
-                "title": front.get("title", ""),
+                "id": file_id,
+                "title": file_title,
                 "file": md_file.relative_to(DOCS_DIR).as_posix(),
                 "status": front.get("status", ""),
                 "layout": front.get("layout", "A4"),

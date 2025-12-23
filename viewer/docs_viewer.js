@@ -47,6 +47,13 @@ const markdown = window.markdownit?.({
   typographer: true,
 });
 
+function getDocsBundle() {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  return window.DOCS_BUNDLE ?? null;
+}
+
 const STATUS_META = {
   done: { label: 'done', pillClass: 'status-pill--done', entryClass: 'chapter-entry--done' },
   in_progress: {
@@ -81,6 +88,10 @@ function renderMathContent(root) {
 }
 
 async function loadManifest() {
+  const bundle = getDocsBundle();
+  if (bundle?.manifest) {
+    return bundle.manifest;
+  }
   const response = await fetch(manifestUrl);
   if (!response.ok) {
     throw new Error(`Manifest ${manifestUrl} nicht geladen (${response.status})`);
@@ -273,6 +284,10 @@ async function appendChapter(chapter) {
 }
 
 async function fetchChapterContent(file) {
+  const bundle = getDocsBundle();
+  if (bundle?.files && Object.prototype.hasOwnProperty.call(bundle.files, file)) {
+    return bundle.files[file];
+  }
   const url = new URL(file, docsBaseUrl);
   url.searchParams.set('t', Date.now().toString());
   const response = await fetch(url);
@@ -283,12 +298,24 @@ async function fetchChapterContent(file) {
 }
 
 function splitFrontmatter(text) {
-  const match = text.match(/^---\s*([\s\S]*?)\s*---\s*/);
+  const match = text.match(/^\ufeff?\s*(?:---\s*[\s\S]*?---\s*)+/);
   if (!match) {
     return { frontmatter: {}, content: text };
   }
+  const yamlParser =
+    (typeof window !== 'undefined' && window.jsyaml) ||
+    (typeof jsyaml !== 'undefined' ? jsyaml : null);
+  let frontmatter = {};
+  const firstBlock = match[0].match(/---\s*([\s\S]*?)---/);
+  if (yamlParser?.load && firstBlock) {
+    try {
+      frontmatter = yamlParser.load(firstBlock[1]) ?? {};
+    } catch (error) {
+      console.warn('Frontmatter konnte nicht geparst werden', error);
+    }
+  }
   return {
-    frontmatter: jsyaml.load(match[1]) ?? {},
+    frontmatter,
     content: text.slice(match[0].length),
   };
 }
